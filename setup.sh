@@ -143,10 +143,16 @@ setup_firewall()
 
 setup_tmpdir()
 {
+  echo -n "Setting up temporary directory..."
   echo "APT::ExtractTemplates::TempDir \"/var/local/tmp\";" > /etc/apt/apt.conf.d/50extracttemplates && mkdir /var/local/tmp/
   mkdir ~/tmp && chmod 777 ~/tmp
   mount --bind ~/tmp /tmp
   echo "done."
+}
+
+install_base()
+{
+  aptitude -y install curl subversion build-essential python-software-properties git-core htop
 }
 
 install_php()
@@ -217,65 +223,67 @@ EOF
 
 config_db()
 {
-	echo -n "Setting up WordPress..."
-	WP_DB=`echo $(</dev/urandom tr -dc A-Za-z0-9 | head -c 15)`
-	WP_USER=`echo $(</dev/urandom tr -dc A-Za-z0-9 | head -c 15)`
-	WP_USER_PASS=`echo $(</dev/urandom tr -dc A-Za-z0-9 | head -c 15)`
-	mysql -e "CREATE DATABASE $WP_DB"
-	mysql -e "GRANT ALL PRIVILEGES ON $WP_DB.* to $WP_USER@localhost IDENTIFIED BY '$WP_USER_PASS'"
-	mysql -e "FLUSH PRIVILEGES"
-	echo -n "Done."
+  echo -n "Setting up WordPress..."
+  WP_DB=`echo $(</dev/urandom tr -dc A-Za-z0-9 | head -c 15)`
+  WP_USER=`echo $(</dev/urandom tr -dc A-Za-z0-9 | head -c 15)`
+  WP_USER_PASS=`echo $(</dev/urandom tr -dc A-Za-z0-9 | head -c 15)`
+  mysql -e "CREATE DATABASE $WP_DB"
+  mysql -e "GRANT ALL PRIVILEGES ON $WP_DB.* to $WP_USER@localhost IDENTIFIED BY '$WP_USER_PASS'"
+  mysql -e "FLUSH PRIVILEGES"
+  echo -n "Done."
 }
 
 config_web()
 {
-	WP_VERSION=`curl -s http://api.wordpress.org/core/version-check/1.4/ | grep -r "^[0-9]"|head -1`
-	svn co http://svn.automattic.com/wordpress/tags/$WP_VERSION/ /var/www/$hostname/public/
-	add-apt-repository ppa:nginx/stable 
-	aptitude -y update 
-	aptitude -y install nginx
-	cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.`date "+%Y-%m-%d"`
-	rm -rf /etc/nginx/nginx.conf
-	cp files/nginx.conf /etc/nginx/nginx.conf
-	rm -rf /etc/nginx/sites-available/default
-	unlink /etc/nginx/sites-enabled/default
-	cp files/mydomain.com /etc/nginx/sites-available/$hostname.conf
-	sed -i -r "s/mydomain.com/$hostname/g" /etc/nginx/sites-available/$hostname.conf
-	ln -s -v /etc/nginx/sites-available/$hostname.conf /etc/nginx/sites-enabled/$hostname.conf
-	rm -rf /var/www/nginx-default
-	service nginx restart	
+  echo -n "Setting up Nginx..."
+  WP_VERSION=`curl -s http://api.wordpress.org/core/version-check/1.4/ | grep -r "^[0-9]"|head -1`
+  svn co http://svn.automattic.com/wordpress/tags/$WP_VERSION/ /var/www/$hostname/public/
+  add-apt-repository ppa:nginx/stable 
+  aptitude -y update 
+  aptitude -y install nginx
+  cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.`date "+%Y-%m-%d"`
+  rm -rf /etc/nginx/nginx.conf
+  cp files/nginx.conf /etc/nginx/nginx.conf
+  rm -rf /etc/nginx/sites-available/default
+  unlink /etc/nginx/sites-enabled/default
+  cp files/mydomain.com /etc/nginx/sites-available/$hostname.conf
+  sed -i -r "s/mydomain.com/$hostname/g" /etc/nginx/sites-available/$hostname.conf
+  ln -s -v /etc/nginx/sites-available/$hostname.conf /etc/nginx/sites-enabled/$hostname.conf
+  rm -rf /var/www/nginx-default
+  service nginx restart
+  echo -n "Done."
 }
 
 install_postfix()
 {
-	echo -n "Setting up Postfix..."
-	echo "postfix postfix/mailname string $hostname" | debconf-set-selections
-	echo "postfix postfix/main_mailer_type select Internet Site" | debconf-set-selections
-	aptitude -y install postfix
-	/usr/sbin/postconf -e "inet_interfaces = loopback-only"
-	service postfix restart
-	echo "Done."
+  echo -n "Setting up Postfix..."
+  echo "postfix postfix/mailname string $hostname" | debconf-set-selections
+  echo "postfix postfix/main_mailer_type select Internet Site" | debconf-set-selections
+  aptitude -y install postfix
+  usr/sbin/postconf -e "inet_interfaces = loopback-only"
+  service postfix restart
+  echo "Done."
 }
 
 configure_wp()
 {
-	echo -n "Setting up WordPress..."
-	perl -p -i -e "s|database_name_here|$WP_DB|;" /var/www/$hostname/public/wp-config-sample.php
-	perl -p -i -e "s|username_here|$WP_USER|;" /var/www/$hostname/public/wp-config-sample.php
-	perl -p -i -e "s|password_here|$WP_USER_PASS|;" /var/www/$hostname/public/wp-config-sample.php
-	mv /var/www/$hostname/public/wp-config-sample.php /var/www/$hostname/public/wp-config.php
-	rm -rf license.txt readme.html
-	wget -O /tmp/wp.keys https://api.wordpress.org/secret-key/1.1/salt/
-	sed -i '/#@-/r /tmp/wp.keys' /var/www/$hostname/public/wp-config.php
-	rm /tmp/wp.keys
-	curl -d "weblog_title=$wptitle&user_name=$wpuser&admin_password=$wppass&admin_password2=$wppass&admin_email=$wpemail" http://$hostname/wp-admin/install.php?step=2 >/dev/null 2>&1
-	sed -i "/#@+/,/#@-/d" /var/www/$HOST/public/wp-config.php
-	mv /var/www/$hostname/public/wp-config.php /var/www/$hostname/wp-config.php
-	chmod 400 /var/www/$hostname/wp-config.php
-	sed -i '1 a\
-	define('WP_CACHE', true);' /var/www/$hostname/wp-config.php
-	chown -R www-data:www-data /var/www/$hostname
-	echo "Done."
+  echo -n "Setting up WordPress..."
+  perl -p -i -e "s|database_name_here|$WP_DB|;" /var/www/$hostname/public/wp-config-sample.php
+  perl -p -i -e "s|username_here|$WP_USER|;" /var/www/$hostname/public/wp-config-sample.php
+  perl -p -i -e "s|password_here|$WP_USER_PASS|;" /var/www/$hostname/public/wp-config-sample.php
+  mv /var/www/$hostname/public/wp-config-sample.php /var/www/$hostname/public/wp-config.php
+  rm -rf license.txt readme.html
+  wget -O /tmp/wp.keys https://api.wordpress.org/secret-key/1.1/salt/
+  sed -i '/#@-/r /tmp/wp.keys' /var/www/$hostname/public/wp-config.php
+  rm /tmp/wp.keys
+  curl -d "weblog_title=$wptitle&user_name=$wpuser&admin_password=$wppass&admin_password2=$wppass&admin_email=$wpemail" http://$hostname/wp-admin/install.php?step=2 >/dev/null 2>&1
+  sed -i "/#@+/,/#@-/d" /var/www/$HOST/public/wp-config.php
+  mv /var/www/$hostname/public/wp-config.php /var/www/$hostname/wp-config.php
+  chmod 400 /var/www/$hostname/wp-config.php
+  sed -i '1 a\
+  define('WP_CACHE', true);' /var/www/$hostname/wp-config.php
+  chown -R www-data:www-data /var/www/$hostname
+  echo "Done."
 }
 
 print_report()
@@ -333,8 +341,11 @@ config_ssh
 # set up and activate firewall
 setup_firewall
 
-#set up temp directory
+# set up temp directory
 setup_tmpdir
+
+# set up base packages
+install_base
 
 # install php
 install_php
@@ -356,3 +367,6 @@ configure_wp
 
 # clean up tmp
 cleanup
+
+# print report of db info
+print_report
