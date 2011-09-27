@@ -68,8 +68,8 @@ set_hostname()
 
 set_timezone()
 {
-	echo "America/Los_Angeles" > /etc/timezone
-	dpkg-reconfigure -f noninteractive tzdata
+  echo "America/Los_Angeles" > /etc/timezone
+  dpkg-reconfigure -f noninteractive tzdata
 }
 
 change_root_passwd()
@@ -152,7 +152,9 @@ setup_tmpdir()
 
 install_base()
 {
+  echo -n "Setting up base packages..."
   aptitude -y install curl subversion build-essential python-software-properties git-core htop
+  echo "done."
 }
 
 install_php()
@@ -277,7 +279,7 @@ configure_wp()
   sed -i '/#@-/r /tmp/wp.keys' /var/www/$hostname/public/wp-config.php
   rm /tmp/wp.keys
   curl -d "weblog_title=$wptitle&user_name=$wpuser&admin_password=$wppass&admin_password2=$wppass&admin_email=$wpemail" http://$hostname/wp-admin/install.php?step=2 >/dev/null 2>&1
-  sed -i "/#@+/,/#@-/d" /var/www/$HOST/public/wp-config.php
+  sed -i "/#@+/,/#@-/d" /var/www/$hostname/public/wp-config.php
   mv /var/www/$hostname/public/wp-config.php /var/www/$hostname/wp-config.php
   chmod 400 /var/www/$hostname/wp-config.php
   sed -i '1 a\
@@ -288,7 +290,7 @@ configure_wp()
 
 print_report()
 {
-  echo "WP install script: http://$site/"
+  echo "WP install script: http://$hostname/"
   echo "Database to be used: $WP_DB"
   echo "Database user: $WP_USER"
   echo "Database user password: $WP_USER_PASS"
@@ -296,7 +298,7 @@ print_report()
 
 check_vars()
 {
-  if [ -n "$hostname" -a -n "$sudo_user" -a -n "$sudo_user_passwd" -a -n "$root_passwd" -a -n "$ssh_port" -a -n "$wptitle" -a -n "$wpuser" -a -n "$wppass" -a -n "$wpemail"]
+  if [ -n "$hostname" -a -n "$sudo_user" -a -n "$sudo_user_passwd" -a -n "$root_passwd" -a -n "$ssh_port" -a -n "$wptitle" -a -n "$wpuser" -a -n "$wppass" -a -n "$wpemail" ]
   then
     return
   else
