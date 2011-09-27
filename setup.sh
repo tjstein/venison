@@ -190,8 +190,6 @@ install_php()
   perl -p -i -e 's|disable_functions =|disable_functions = "system,exec,shell_exec,passthru,escapeshellcmd,popen,pcntl_exec"|g;' /etc/php5/fpm/php.ini
   service php5-fpm stop && sleep 2
   service php5-fpm start
-  grep "root: $sudo_user" /etc/aliases > /dev/null 2>&1 || echo "root: $sudo_user" >> /etc/aliases
-  newaliases
   echo "Done."
 }
 
@@ -352,6 +350,9 @@ config_web
 
 # install postfix
 install_postfix
+
+# configure wordpress
+configure_wp
 
 # clean up tmp
 cleanup
