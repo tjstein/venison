@@ -1,6 +1,6 @@
 server {
     server_name www.mydomain.com;
-    rewrite ^ $scheme://mydomain$request_uri?;
+    rewrite ^ $scheme://mydomain.com$request_uri?;
 }
 
 server {
