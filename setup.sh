@@ -153,6 +153,9 @@ setup_tmpdir()
 install_base()
 {
   echo -n "Setting up base packages..."
+  aptitude update
+  aptitude -y safe-upgrade
+  aptitude -y full-upgrade
   aptitude -y install curl subversion build-essential python-software-properties git-core htop
   echo "done."
 }
@@ -161,9 +164,6 @@ install_php()
 {
   echo "Installing PHP..."
   mkdir -p /var/www
-  aptitude update
-  aptitude -y safe-upgrade
-  aptitude -y full-upgrade
   aptitude -y install php5-cli php5-common php5-mysql php5-suhosin php5-gd php5-curl
   aptitude -y install php5-fpm php5-cgi php-pear php5-dev libpcre3-dev
   perl -p -i -e 's|# Default-Stop:|# Default-Stop:      0 1 6|g;' /etc/init.d/php5-fpm
@@ -262,7 +262,7 @@ install_postfix()
   echo "postfix postfix/mailname string $hostname" | debconf-set-selections
   echo "postfix postfix/main_mailer_type select Internet Site" | debconf-set-selections
   aptitude -y install postfix
-  usr/sbin/postconf -e "inet_interfaces = loopback-only"
+  /usr/sbin/postconf -e "inet_interfaces = loopback-only"
   service postfix restart
   echo "Done."
 }
