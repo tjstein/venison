@@ -1,0 +1,68 @@
+set daemon 60
+set logfile syslog facility log_daemon
+set mailserver localhost
+set mail-format { from: monit@mydomain.com }
+set alert $wpemail
+
+check filesystem vzfs with path /
+    if space usage > 90% for 5 times within 15 cycles then alert
+
+check host mydomain.com with address mydomain.com
+    if failed icmp type echo count 5 with timeout 15 seconds then alert
+    if failed port 80 protocol http then alert
+
+check system localhost
+    if loadavg (1min) > 4 then alert
+    if loadavg (5min) > 2 then alert
+    if memory usage > 75% then alert
+    if cpu usage (user) > 70% then alert
+    if cpu usage (system) > 30% then alert
+    if cpu usage (wait) > 20% then alert
+
+check process nginx with pidfile /var/run/nginx.pid
+    start program = "/etc/init.d/nginx start"
+    stop program = "/etc/init.d/nginx stop"
+    if failed host 127.0.0.1 port 80 protocol HTTP with timeout 20 seconds then restart
+    if cpu > 60% for 2 cycles then alert
+    if cpu > 80% for 5 cycles then restart
+    if totalmem > 90% for 5 cycles then restart
+    if loadavg(5min) greater than 10 for 8 cycles then restart
+    if 3 restarts within 5 cycles then timeout
+
+check process mysql with pidfile /var/run/mysqld/mysqld.pid
+    start program = "/etc/init.d/mysql start"
+    stop program = "/etc/init.d/mysql stop"
+    if cpu > 60% for 2 cycles then alert
+    if cpu > 80% for 5 cycles then restart
+    if totalmem > 90% for 5 cycles then restart
+    if loadavg(5min) greater than 10 for 8 cycles then exec "/bin/bash -c '(date && /usr/bin/mysqladmin processlist && echo) >> /tmp/mysql_processlist'"
+    if failed unixsocket /var/run/mysqld/mysqld.sock then restart
+    if 3 restarts within 5 cycles then timeout
+
+check process php5-fpm with pidfile /var/run/php5-fpm.pid
+    start program "/etc/init.d/php5-fpm start"
+    stop program "/etc/init.d/php5-fpm stop"
+    if cpu > 60% for 2 cycles then alert
+    if cpu > 80% for 5 cycles then restart
+    if totalmem > 90% for 5 cycles then restart
+    if loadavg(5min) greater than 10 for 8 cycles then stop
+    if failed unixsocket /var/run/php5-fpm.sock then restart
+    if 5 restarts within 5 cycles then timeout
+	
+check process postfix with pidfile /var/spool/postfix/pid/master.pid
+    start program "/etc/init.d/postfix start"
+    stop program "/etc/init.d/postfix stop"
+    if failed host 127.0.0.1 port 25 protocol smtp then restart
+    if 5 restarts within 5 cycles then timeout
+
+check process sshd with pidfile /var/run/sshd.pid
+    start program "/etc/init.d/ssh start"
+    stop program "/etc/init.d/ssh stop"
+    if failed host 127.0.0.1 port 22 protocol ssh then restart
+    if 5 restarts within 5 cycles then timeout
+
+check process syslogd with pidfile /var/run/syslogd.pid
+    start program = "/etc/init.d/sysklogd start"
+    stop program = "/etc/init.d/sysklogd stop"
+    if 5 restarts within 5 cycles then timeout
+EOF

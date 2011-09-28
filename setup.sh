@@ -249,7 +249,7 @@ config_web()
   unlink /etc/nginx/sites-enabled/default
   cp files/mydomain.com /etc/nginx/sites-available/$hostname.conf
   sed -i -r "s/mydomain.com/$hostname/g" /etc/nginx/sites-available/$hostname.conf
-  ln -s -v /etc/nginx/sites-available/$hostname.conf /etc/nginx/sites-enabled/$hostname.conf
+  ln -s -v /etc/nginx/sites-available/$hostname.conf /etc/nginx/sites-enabled/001-$hostname.conf
   rm -rf /var/www/nginx-default
   service nginx restart
   echo -n "Done."
@@ -285,6 +285,18 @@ configure_wp()
   define('WP_CACHE', true);' /var/www/$hostname/wp-config.php
   chown -R www-data:www-data /var/www/$hostname
   echo "Done."
+}
+
+install_monit()
+{
+  echo -n "Setting up Monit..."
+  aptitude -y install monit
+  perl -p -i -e 's|startup=0|startup=1|g;' /etc/default/monit
+  mv /etc/monit/monitrc /etc/monit/monitrc.bak
+  cp files/monitrc /etc/monit/monitrc
+  sed -i -r "s/mydomain.com/$hostname/g" /etc/monit/monitrc
+  sed -i -r "s/$alertemail/$wpemail/g" /etc/monit/monitrc
+
 }
 
 print_report()
