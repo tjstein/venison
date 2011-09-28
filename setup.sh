@@ -241,6 +241,10 @@ config_web()
   cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.`date "+%Y-%m-%d"`
   rm -rf /etc/nginx/nginx.conf
   cp files/nginx.conf /etc/nginx/nginx.conf
+  /bin/mkdir -p ~/.vim/syntax/
+  cp files/nginx.vim ~/.vim/syntax/nginx.vim
+  touch ~/.vim/filetype.vim
+  echo "au BufRead,BufNewFile /etc/nginx/* set ft=nginx" >> ~/.vim/filetype.vim
   rm -rf /etc/nginx/sites-available/default
   unlink /etc/nginx/sites-enabled/default
   cp files/mydomain.com /etc/nginx/sites-available/$hostname.conf
