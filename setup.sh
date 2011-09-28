@@ -90,14 +90,9 @@ create_sudo_user()
     id $sudo_user > /dev/null 2>&1 && echo "Cannot create sudo user! User $sudo_user already exists!" && touch tmp/sudofailed.$$ && return
     echo -n "Creating sudo user..."
     useradd -d /home/$sudo_user -s /bin/bash -m $sudo_user
-    echo "$sudo_user_passwd\n$sudo_user_passwd" > tmp/sudopass.$$
-    passwd $sudo_user < tmp/sudopass.$$ > /dev/null 2>&1
+    echo "$sudo_user:$sudo_user_passwd" | chpasswd
     echo "$sudo_user ALL=(ALL) ALL" >> /etc/sudoers
     { echo 'export PS1="\[\e[32;1m\]\u\[\e[0m\]\[\e[32m\]@\h\[\e[36m\]\w \[\e[33m\]\$ \[\e[0m\]"'
-      echo 'alias ll="ls -la"'
-      echo 'alias a2r="sudo /etc/init.d/apache2 stop && sleep 2 && sudo /etc/init.d/apache2 start"'
-      echo 'alias n2r="sudo /etc/init.d/nginx stop && sleep 2 && sudo /etc/init.d/nginx start"'
-      echo 'alias ver="cat /etc/lsb-release"'
     } >> /home/$sudo_user/.bashrc
     echo "done."
   fi
