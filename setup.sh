@@ -197,7 +197,7 @@ EOF
 
 config_db()
 {
-  echo -n "Setting up WordPress..."
+  echo -n "Setting up WordPress database..."
   WP_DB=`echo $(</dev/urandom tr -dc A-Za-z0-9 | head -c 15)`
   WP_USER=`echo $(</dev/urandom tr -dc A-Za-z0-9 | head -c 15)`
   WP_USER_PASS=`echo $(</dev/urandom tr -dc A-Za-z0-9 | head -c 15)`
@@ -212,13 +212,14 @@ config_git()
   echo -n "Setting up Git..."
   git config --global user.name "$hostname"
   git config --global user.email $wpemail
-  mkdir -p /var/www/$hostname/public/ && cd $_
-  wget http://wordpress.org/latest.tar.gz
-  tar zxvf latest.tar.gz
-  cd wordpress && mv * ../ && rm -rf wordpress latest.tar.gz
+  mkdir -p /var/www/$hostname/public/
+  wget -O /var/www/$hostname/public/latest.zip http://wordpress.org/latest.zip
+  unzip /var/www/$hostname/public/latest.zip -d /var/www/$hostname/public/
+  mv /var/www/$hostname/public/wordpress/* /var/www/$hostname/public/
+  rm -rf /var/www/$hostname/public/wordpress
+  rm -rf /var/www/$hostname/public/latest.zip
   git init && git add *
   git commit -m 'initial commit'
-  cd
   echo -n "Done." 
 }
 
