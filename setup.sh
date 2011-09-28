@@ -223,6 +223,7 @@ config_git()
 }
 
 config_nginx()
+{
   echo -n "Setting up Nginx..."
   add-apt-repository ppa:nginx/stable 
   aptitude -y update 
