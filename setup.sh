@@ -3,7 +3,7 @@
 #-- User Defined Variables --#
 hostname=''    #Your hostname (e.g. theuprisingcreative.com)
 sudo_user=''    #Your username
-sudo_user_passwd=''     #your password
+sudo_user_passwd=''     #your sudo + FTP password
 root_passwd=''    #Your new root password
 ssh_port='22'   #Your SSH port if you wish to change it from the default
 wptitle=''    #Your WordPress site title
@@ -271,8 +271,21 @@ install_monit()
   perl -p -i -e 's|startup=0|startup=1|g;' /etc/default/monit
   mv /etc/monit/monitrc /etc/monit/monitrc.bak
   cp files/monitrc /etc/monit/monitrc
+  chmod 700 /etc/monit/monitrc
   sed -i -r "s/mydomain.com/$hostname/g" /etc/monit/monitrc
-  sed -i -r "s/monitemail/$wpemail/g" /etc/monit/monitrc
+  perl -p -i -e "s|monitemail|$wpemail|;" /etc/monit/monitrc
+}
+
+install_proftpd()
+{
+  echo "proftpd-basic shared/proftpd/inetd_or_standalone select standalone" | debconf-set-selections
+  aptitude -y install proftpd-basic
+  cp /etc/proftpd/proftpd.conf /etc/proftpd/proftpd.conf.bak.`date "+%Y-%m-%d"`
+  sed -i 's/.*UseIPv6.*/UseIPv6 off/g' /etc/proftpd/proftpd.conf
+  perl -p -i -e 's|Debian|$hostname|g;' /etc/proftpd/proftpd.conf
+  sed -i 's/.*RequireValidShell.*/RequireValidShell off/g' /etc/proftpd/proftpd.conf
+  service proftpd restart
+  echo "www-data:$sudo_user_passwd" | chpasswd
 }
 
 print_report()
@@ -356,6 +369,9 @@ configure_wp
 
 # install monit
 install_monit
+
+# install proftpd
+install_proftpd
 
 # clean up tmp
 cleanup
