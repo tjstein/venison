@@ -65,4 +65,3 @@ check process syslogd with pidfile /var/run/syslogd.pid
     start program = "/etc/init.d/sysklogd start"
     stop program = "/etc/init.d/sysklogd stop"
     if 5 restarts within 5 cycles then timeout
-EOF
