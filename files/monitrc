@@ -61,12 +61,6 @@ check process sshd with pidfile /var/run/sshd.pid
     if failed host 127.0.0.1 port 22 protocol ssh then restart
     if 5 restarts within 5 cycles then timeout
 
-check process proftpd with pidfile /var/run/proftpd.pid
-    start program = "/etc/init.d/proftpd start"
-    stop program = "/etc/init.d/proftpd stop"
-    if failed host 127.0.0.1 port 21 protocol ftp then restart
-    if 5 restarts within 5 cycles then timeout
-
 check process syslogd with pidfile /var/run/syslogd.pid
     start program = "/etc/init.d/sysklogd start"
     stop program = "/etc/init.d/sysklogd stop"

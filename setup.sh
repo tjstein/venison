@@ -276,18 +276,6 @@ install_monit()
   perl -p -i -e "s|monitemail|$wpemail|;" /etc/monit/monitrc
 }
 
-install_proftpd()
-{
-  echo "proftpd-basic shared/proftpd/inetd_or_standalone select standalone" | debconf-set-selections
-  aptitude -y install proftpd-basic
-  cp /etc/proftpd/proftpd.conf /etc/proftpd/proftpd.conf.bak.`date "+%Y-%m-%d"`
-  sed -i 's/.*UseIPv6.*/UseIPv6 off/g' /etc/proftpd/proftpd.conf
-  perl -p -i -e 's|Debian|$hostname|g;' /etc/proftpd/proftpd.conf
-  sed -i 's/.*RequireValidShell.*/RequireValidShell off/g' /etc/proftpd/proftpd.conf
-  service proftpd restart
-  echo "www-data:$sudo_user_passwd" | chpasswd
-}
-
 print_report()
 {
   echo "WP install script: http://$hostname/"
@@ -369,9 +357,6 @@ configure_wp
 
 # install monit
 install_monit
-
-# install proftpd
-install_proftpd
 
 # clean up tmp
 cleanup
