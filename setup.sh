@@ -272,8 +272,7 @@ install_monit()
   mv /etc/monit/monitrc /etc/monit/monitrc.bak
   cp files/monitrc /etc/monit/monitrc
   sed -i -r "s/mydomain.com/$hostname/g" /etc/monit/monitrc
-  sed -i -r "s/$alertemail/$wpemail/g" /etc/monit/monitrc
-
+  sed -i -r "s/monitemail/$wpemail/g" /etc/monit/monitrc
 }
 
 print_report()
@@ -354,6 +353,9 @@ install_postfix
 
 # configure wordpress
 configure_wp
+
+# install monit
+install_monit
 
 # clean up tmp
 cleanup
