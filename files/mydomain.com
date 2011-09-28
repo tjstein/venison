@@ -14,6 +14,7 @@ server {
     error_log /var/log/nginx/mydomain.com-error.log;
 
     location / {
+		gzip_static on;
         if ($request_uri  ~ ^.*[^/]$) {
           return 405;
         }
@@ -47,7 +48,7 @@ server {
         add_header Vary "Cookie";
         add_header Cache-Control "store, must-revalidate, post-check=0, pre-check=0";
 
-        try_files /wp-content/cache/supercache/${host}${uri}index.html $uri $uri/ /index.php;
+        try_files /wp-content/cache/supercache/${host}${uri}index.html @nocache;
     }
 	
     location @nocache {
