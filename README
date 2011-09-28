@@ -22,7 +22,7 @@ SERVER SETUP/CONFIGURATION
 	- vim setup.sh
 	- Edit lines 4-12 to match your needs
 	- save the changes
-5. sh server-setup.sh
+5. sh setup.sh
 6. Let it run
 
 
