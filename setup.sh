@@ -128,7 +128,7 @@ install_base()
   aptitude update
   aptitude -y safe-upgrade
   aptitude -y full-upgrade
-  aptitude -y install curl subversion build-essential python-software-properties git-core htop
+  aptitude -y install curl build-essential python-software-properties git-core htop
   echo "done."
 }
 
@@ -207,11 +207,23 @@ config_db()
   echo -n "Done."
 }
 
-config_web()
+config_git()
 {
+  echo -n "Setting up Git..."
+  git config --global user.name "$hostname"
+  git config --global user.email $wpemail
+  mkdir -p /var/www/$hostname/public/ && cd $_
+  wget http://wordpress.org/latest.tar.gz
+  tar zxvf latest.tar.gz
+  cd wordpress && mv * ../ && rm -rf wordpress latest.tar.gz
+  git init && git add *
+  git commit -m 'initial commit'
+  cd
+  echo -n "Done." 
+}
+
+config_nginx()
   echo -n "Setting up Nginx..."
-  WP_VERSION=`curl -s http://api.wordpress.org/core/version-check/1.4/ | grep -r "^[0-9]"|head -1`
-  svn co http://svn.automattic.com/wordpress/tags/$WP_VERSION/ /var/www/$hostname/public/
   add-apt-repository ppa:nginx/stable 
   aptitude -y update 
   aptitude -y install nginx
@@ -278,7 +290,7 @@ install_monit()
 
 print_report()
 {
-  echo "WP install script: http://$hostname/"
+  echo "Venison is delicious... enjoy!"
   echo "Database to be used: $WP_DB"
   echo "Database user: $WP_USER"
   echo "Database user password: $WP_USER_PASS"
@@ -346,8 +358,11 @@ install_mysql
 # configure database
 config_db
 
+# configure git
+config_git
+
 # configure nginx web server
-config_web
+config_nginx
 
 # install postfix
 install_postfix
