@@ -1,15 +1,15 @@
 #!/bin/bash
 
 #-- User Defined Variables --#
-hostname=''    			#Your hostname (e.g. example.com)
-sudo_user=''    			#Your sudo username
-sudo_user_passwd=''     #your sudo user password
-root_passwd=''    		#Your new root password
-ssh_port='22'   			#Your SSH port if you wish to change it from the default
-wptitle=''    				#Your WordPress site title
-wpuser=''					#Your WordPress admin username
-wppass=''					#Your WordPress admin password
-wpemail=''					#Your WordPress admin user email address
+hostname=''             #Your hostname (e.g. example.com)
+sudo_user=''            #Your sudo username
+sudo_user_passwd=''     #Your sudo user password
+root_passwd=''          #Your new root password
+ssh_port='22'           #Your SSH port if you wish to change it from the default
+wptitle=''              #Your WordPress site title
+wpuser=''               #Your WordPress admin username
+wppass=''               #Your WordPress admin password
+wpemail=''              #Your WordPress admin user email address
 #-- UDV End --#
 
 os_check()
