@@ -5,7 +5,7 @@ server {
 
 server {
     server_name mydomain.com;
-    root /var/www/mydomain.com/public;
+    root /home/sudoer/mydomain.com/public;
     index index.php index.html;
     charset UTF-8;
     default_type text/html;
@@ -14,7 +14,7 @@ server {
     error_log /var/log/nginx/mydomain.com-error.log;
 
     location / {
-		gzip_static on;
+        gzip_static on;
         if ($request_uri  ~ ^.*[^/]$) {
           return 405;
         }
@@ -64,10 +64,6 @@ server {
         allow all;
         log_not_found off;
         access_log off;
-    }
-
-    location ~ /\.svn/* {
-        deny all;
     }
 
     location ~ /\.git/* {

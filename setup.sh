@@ -1,15 +1,15 @@
 #!/bin/bash
 
 #-- User Defined Variables --#
-hostname=''    #Your hostname (e.g. theuprisingcreative.com)
-sudo_user=''    #Your username
-sudo_user_passwd=''     #your sudo + FTP password
-root_passwd=''    #Your new root password
-ssh_port='22'   #Your SSH port if you wish to change it from the default
-wptitle=''    #Your WordPress site title
-wpuser=''	#Your WordPress admin username
-wppass=''	#Your WordPress admin password
-wpemail=''	#Your WordPress admin user email address
+hostname=''    			#Your hostname (e.g. example.com)
+sudo_user=''    			#Your sudo username
+sudo_user_passwd=''     #your sudo user password
+root_passwd=''    		#Your new root password
+ssh_port='22'   			#Your SSH port if you wish to change it from the default
+wptitle=''    				#Your WordPress site title
+wpuser=''					#Your WordPress admin username
+wppass=''					#Your WordPress admin password
+wpemail=''					#Your WordPress admin user email address
 #-- UDV End --#
 
 os_check()
@@ -18,6 +18,11 @@ os_check()
   echo "You need to be running Ubuntu 11.04"
     exit
   fi
+}
+
+install_log()
+{
+  touch ~/install.log
 }
 
 set_locale()
@@ -125,10 +130,10 @@ setup_tmpdir()
 install_base()
 {
   echo -n "Setting up base packages..."
-  aptitude update
-  aptitude -y safe-upgrade
-  aptitude -y full-upgrade
-  aptitude -y install curl build-essential python-software-properties git-core htop
+  aptitude update >> ~/install.log
+  aptitude -y safe-upgrade >> ~/install.log
+  aptitude -y full-upgrade >> ~/install.log
+  aptitude -y install curl build-essential python-software-properties git-core htop >> ~/install.log
   echo "done."
 }
 
@@ -136,8 +141,8 @@ install_php()
 {
   echo "Installing PHP..."
   mkdir -p /var/www
-  aptitude -y install php5-cli php5-common php5-mysql php5-suhosin php5-gd php5-curl
-  aptitude -y install php5-fpm php5-cgi php-pear php5-dev libpcre3-dev
+  aptitude -y install php5-cli php5-common php5-mysql php5-suhosin php5-gd php5-curl >> ~/install.log
+  aptitude -y install php5-fpm php5-cgi php-pear php5-dev libpcre3-dev >> ~/install.log
   perl -p -i -e 's|# Default-Stop:|# Default-Stop:      0 1 6|g;' /etc/init.d/php5-fpm
   cp /etc/php5/fpm/pool.d/www.conf /etc/php5/fpm/pool.d/www.conf.`date "+%Y-%m-%d"`
   chmod 000 /etc/php5/fpm/pool.d/www.conf.`date "+%Y-%m-%d"` && mv /etc/php5/fpm/pool.d/www.conf.`date "+%Y-%m-%d"` /tmp
@@ -168,8 +173,8 @@ install_php()
   perl -p -i -e 's|;realpath_cache_size = 16k|realpath_cache_size = 128k|g;' /etc/php5/fpm/php.ini
   perl -p -i -e 's|;realpath_cache_ttl = 120|realpath_cache_ttl = 600|g;' /etc/php5/fpm/php.ini
   perl -p -i -e 's|disable_functions =|disable_functions = "system,exec,shell_exec,passthru,escapeshellcmd,popen,pcntl_exec"|g;' /etc/php5/fpm/php.ini
-  service php5-fpm stop && sleep 2
-  service php5-fpm start
+  service php5-fpm stop > /dev/null 2>&1
+  service php5-fpm start > /dev/null 2>&1
   echo "Done."
 }
 
@@ -179,7 +184,7 @@ install_mysql()
   MYSQL_PASS=`echo $(</dev/urandom tr -dc A-Za-z0-9 | head -c 15)`
   echo "mysql-server mysql-server/root_password select $MYSQL_PASS" | debconf-set-selections
   echo "mysql-server mysql-server/root_password_again select $MYSQL_PASS" | debconf-set-selections
-  aptitude -y install mysql-server
+  aptitude -y install mysql-server >> ~/install.log
   cat <<EOF > /root/.my.cnf
 [client]
 user=root
@@ -191,7 +196,7 @@ EOF
   cp files/my.cnf /etc/mysql/
   touch /var/log/mysql/mysql-slow.log
   chown mysql:mysql /var/log/mysql/mysql-slow.log
-  service mysql restart
+  service mysql restart > /dev/null 2>&1
   echo "Done."
 }
 
@@ -207,28 +212,12 @@ config_db()
   echo -n "Done."
 }
 
-config_git()
-{
-  echo -n "Setting up Git..."
-  git config --global user.name "$hostname"
-  git config --global user.email $wpemail
-  mkdir -p /var/www/$hostname/public/
-  wget -O /var/www/$hostname/public/latest.zip http://wordpress.org/latest.zip
-  unzip /var/www/$hostname/public/latest.zip -d /var/www/$hostname/public/
-  mv /var/www/$hostname/public/wordpress/* /var/www/$hostname/public/
-  rm -rf /var/www/$hostname/public/wordpress
-  rm -rf /var/www/$hostname/public/latest.zip
-  git init && git add *
-  git commit -m 'initial commit'
-  echo -n "Done." 
-}
-
 config_nginx()
 {
   echo -n "Setting up Nginx..."
-  add-apt-repository ppa:nginx/stable 
-  aptitude -y update 
-  aptitude -y install nginx
+  add-apt-repository ppa:nginx/stable >> ~/install.log
+  aptitude -y update >> ~/install.log
+  aptitude -y install nginx >> ~/install.log
   cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.`date "+%Y-%m-%d"`
   rm -rf /etc/nginx/nginx.conf
   cp files/nginx.conf /etc/nginx/nginx.conf
@@ -239,10 +228,12 @@ config_nginx()
   rm -rf /etc/nginx/sites-available/default
   unlink /etc/nginx/sites-enabled/default
   cp files/mydomain.com /etc/nginx/sites-available/$hostname.conf
+  sed -i -r "s/sudoer/$sudo_user/g" /etc/nginx/nginx.conf
   sed -i -r "s/mydomain.com/$hostname/g" /etc/nginx/sites-available/$hostname.conf
+  sed -i -r "s/sudoer/$sudo_user/g" /etc/nginx/sites-available/$hostname.conf
   ln -s -v /etc/nginx/sites-available/$hostname.conf /etc/nginx/sites-enabled/001-$hostname.conf
   rm -rf /var/www/nginx-default
-  service nginx restart
+  service nginx restart > /dev/null 2>&1
   echo -n "Done."
 }
 
@@ -251,51 +242,62 @@ install_postfix()
   echo -n "Setting up Postfix..."
   echo "postfix postfix/mailname string $hostname" | debconf-set-selections
   echo "postfix postfix/main_mailer_type select Internet Site" | debconf-set-selections
-  aptitude -y install postfix
+  aptitude -y install postfix >> ~/install.log
   /usr/sbin/postconf -e "inet_interfaces = loopback-only"
-  service postfix restart
+  service postfix restart > /dev/null 2>&1
   echo "Done."
 }
 
 configure_wp()
 {
   echo -n "Setting up WordPress..."
-  perl -p -i -e "s|database_name_here|$WP_DB|;" /var/www/$hostname/public/wp-config-sample.php
-  perl -p -i -e "s|username_here|$WP_USER|;" /var/www/$hostname/public/wp-config-sample.php
-  perl -p -i -e "s|password_here|$WP_USER_PASS|;" /var/www/$hostname/public/wp-config-sample.php
-  mv /var/www/$hostname/public/wp-config-sample.php /var/www/$hostname/public/wp-config.php
+  mkdir -p /home/$sudo_user/$hostname/public/
+  wget -O /home/$sudo_user/$hostname/public/latest.zip http://wordpress.org/latest.zip >> ~/install.log
+  unzip /home/$sudo_user/$hostname/public/latest.zip -d /home/$sudo_user/$hostname/public/ >> ~/install.log
+  mv /home/$sudo_user/$hostname/public/wordpress/* /home/$sudo_user/$hostname/public/
+  rm -rf /home/$sudo_user/$hostname/public/wordpress
+  rm -rf /home/$sudo_user/$hostname/public/latest.zip
+  perl -p -i -e "s|database_name_here|$WP_DB|;" /home/$sudo_user/$hostname/public/wp-config-sample.php
+  perl -p -i -e "s|username_here|$WP_USER|;" /home/$sudo_user/$hostname/public/wp-config-sample.php
+  perl -p -i -e "s|password_here|$WP_USER_PASS|;" /home/$sudo_user/$hostname/public/wp-config-sample.php
+  mv /home/$sudo_user/$hostname/public/wp-config-sample.php /home/$sudo_user/$hostname/public/wp-config.php
   rm -rf license.txt readme.html
-  wget -O /tmp/wp.keys https://api.wordpress.org/secret-key/1.1/salt/
-  sed -i '/#@-/r /tmp/wp.keys' /var/www/$hostname/public/wp-config.php
+  wget -O /tmp/wp.keys https://api.wordpress.org/secret-key/1.1/salt/ > /dev/null 2>&1
+  sed -i '/#@-/r /tmp/wp.keys' /home/$sudo_user/$hostname/public/wp-config.php
   rm /tmp/wp.keys
   curl -d "weblog_title=$wptitle&user_name=$wpuser&admin_password=$wppass&admin_password2=$wppass&admin_email=$wpemail" http://$hostname/wp-admin/install.php?step=2 >/dev/null 2>&1
-  sed -i "/#@+/,/#@-/d" /var/www/$hostname/public/wp-config.php
-  mv /var/www/$hostname/public/wp-config.php /var/www/$hostname/wp-config.php
-  chmod 400 /var/www/$hostname/wp-config.php
+  sed -i "/#@+/,/#@-/d" /home/$sudo_user/$hostname/public/wp-config.php
+  mv /home/$sudo_user/$hostname/public/wp-config.php /home/$sudo_user/$hostname/wp-config.php
+  chmod 400 /home/$sudo_user/$hostname/wp-config.php
   sed -i '1 a\
-  define('WP_CACHE', true);' /var/www/$hostname/wp-config.php
-  chown -R www-data:www-data /var/www/$hostname
+  define('WP_CACHE', true);' /home/$sudo_user/$hostname/wp-config.php
+  chown -R $sudo_user:$sudo_user /home/$sudo_user/$hostname
   echo "Done."
 }
 
 install_monit()
 {
   echo -n "Setting up Monit..."
-  aptitude -y install monit
+  aptitude -y install monit >> ~/install.log
   perl -p -i -e 's|startup=0|startup=1|g;' /etc/default/monit
   mv /etc/monit/monitrc /etc/monit/monitrc.bak
   cp files/monitrc /etc/monit/monitrc
   chmod 700 /etc/monit/monitrc
   sed -i -r "s/mydomain.com/$hostname/g" /etc/monit/monitrc
-  perl -p -i -e "s|monitemail|$wpemail|;" /etc/monit/monitrc
+  sed -i -r "s/monitemail/$wpemail/g" /etc/monit/monitrc
+  service monit restart > /dev/null 2>&1
+  echo "Done."
 }
 
 print_report()
 {
+  echo ""
   echo "Venison is delicious... enjoy!"
+  echo ""
   echo "Database to be used: $WP_DB"
   echo "Database user: $WP_USER"
   echo "Database user password: $WP_USER_PASS"
+  echo ""
 }
 
 check_vars()
@@ -317,6 +319,9 @@ cleanup()
 
 # make sure we are running Ubuntu 11.04
 os_check
+
+# create ~/install.log
+install_log
 
 # clean up tmp
 cleanup
@@ -359,9 +364,6 @@ install_mysql
 
 # configure database
 config_db
-
-# configure git
-config_git
 
 # configure nginx web server
 config_nginx
