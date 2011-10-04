@@ -51,7 +51,7 @@ set_hostname()
 set_timezone()
 {
   echo "America/Los_Angeles" > /etc/timezone
-  dpkg-reconfigure -f noninteractive tzdata
+  dpkg-reconfigure -f noninteractive tzdata >> ~/install.log
 }
 
 change_root_passwd()
@@ -154,6 +154,7 @@ install_php()
   perl -p -i -e 's|;request_terminate_timeout = 0|request_terminate_timeout = 300s|g;' /etc/php5/fpm/pool.d/www.conf
   perl -p -i -e 's|;request_slowlog_timeout = 0|request_slowlog_timeout = 5s|g;' /etc/php5/fpm/pool.d/www.conf
   perl -p -i -e 's|;listen.backlog = -1|listen.backlog = -1|g;' /etc/php5/fpm/pool.d/www.conf
+  sed -i -r "s/www-data/$sudo_user/g" /etc/php5/fpm/pool.d/www.conf
   perl -p -i -e 's|;slowlog = log/\$pool.log.slow|slowlog = /var/log/php5-fpm.log.slow|g;' /etc/php5/fpm/pool.d/www.conf
   perl -p -i -e 's|;catch_workers_output = yes|catch_workers_output = yes|g;' /etc/php5/fpm/pool.d/www.conf
   perl -p -i -e 's|pm.max_children = 50|pm.max_children = 25|g;' /etc/php5/fpm/pool.d/www.conf
@@ -215,7 +216,7 @@ config_db()
 config_nginx()
 {
   echo -n "Setting up Nginx..."
-  add-apt-repository ppa:nginx/stable >> ~/install.log
+  add-apt-repository ppa:nginx/stable > /dev/null 2>&1
   aptitude -y update >> ~/install.log
   aptitude -y install nginx >> ~/install.log
   cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.`date "+%Y-%m-%d"`
@@ -231,7 +232,7 @@ config_nginx()
   sed -i -r "s/sudoer/$sudo_user/g" /etc/nginx/nginx.conf
   sed -i -r "s/mydomain.com/$hostname/g" /etc/nginx/sites-available/$hostname.conf
   sed -i -r "s/sudoer/$sudo_user/g" /etc/nginx/sites-available/$hostname.conf
-  ln -s -v /etc/nginx/sites-available/$hostname.conf /etc/nginx/sites-enabled/001-$hostname.conf
+  ln -s -v /etc/nginx/sites-available/$hostname.conf /etc/nginx/sites-enabled/001-$hostname.conf > /dev/null 2>&1
   rm -rf /var/www/nginx-default
   service nginx restart > /dev/null 2>&1
   echo -n "Done."
@@ -252,7 +253,7 @@ configure_wp()
 {
   echo -n "Setting up WordPress..."
   mkdir -p /home/$sudo_user/$hostname/public/
-  wget -O /home/$sudo_user/$hostname/public/latest.zip http://wordpress.org/latest.zip >> ~/install.log
+  wget -q -o ~/install.log -O /home/$sudo_user/$hostname/public/latest.zip http://wordpress.org/latest.zip
   unzip /home/$sudo_user/$hostname/public/latest.zip -d /home/$sudo_user/$hostname/public/ >> ~/install.log
   mv /home/$sudo_user/$hostname/public/wordpress/* /home/$sudo_user/$hostname/public/
   rm -rf /home/$sudo_user/$hostname/public/wordpress
