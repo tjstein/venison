@@ -9,12 +9,14 @@ This script requires Ubuntu 11.04. It installs and configures the required OS pa
 
 NOTE: The script disables SSH root login, sets up a sudo user, and optionally changes the SSH port for server security. At the top of the script, you can see the variable that are to be set prior to running the script. All variables should have value, otherwise the script will not run.
 
+The Nginx configuration was built with WP Super Cache in mind. To take advantage of the static file caching, enable WP Super Cache and make sure you've got 'Use mod_rewrite to serve cache files' selected under the advanced plugin section. Ignore any warnings about mod_rewrite.
+
 
 SERVER SETUP/CONFIGURATION
 ============================
 1. Download the script files from the GitHub repo as a tar file. 
 2. Upload the tar file to /root. 
-3. Login to the server as root and unzip the file: 
+3. Login to the server as root and untar the file: 
 	- tar -xzvf venison.tar.gz
 4. Enter setup directory:
 	- cd venison

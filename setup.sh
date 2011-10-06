@@ -51,7 +51,7 @@ set_hostname()
 set_timezone()
 {
   echo "America/Los_Angeles" > /etc/timezone
-  dpkg-reconfigure -f noninteractive tzdata >> ~/install.log
+  dpkg-reconfigure -f noninteractive tzdata > /dev/null 2>&1
 }
 
 change_root_passwd()
@@ -142,7 +142,7 @@ install_php()
   echo "Installing PHP..."
   mkdir -p /var/www
   aptitude -y install php5-cli php5-common php5-mysql php5-suhosin php5-gd php5-curl >> ~/install.log
-  aptitude -y install php5-fpm php5-cgi php-pear php5-dev libpcre3-dev >> ~/install.log
+  aptitude -y install php5-fpm php5-cgi php-pear php-apc php5-dev libpcre3-dev >> ~/install.log
   perl -p -i -e 's|# Default-Stop:|# Default-Stop:      0 1 6|g;' /etc/init.d/php5-fpm
   cp /etc/php5/fpm/pool.d/www.conf /etc/php5/fpm/pool.d/www.conf.`date "+%Y-%m-%d"`
   chmod 000 /etc/php5/fpm/pool.d/www.conf.`date "+%Y-%m-%d"` && mv /etc/php5/fpm/pool.d/www.conf.`date "+%Y-%m-%d"` /tmp
@@ -174,6 +174,7 @@ install_php()
   perl -p -i -e 's|;realpath_cache_size = 16k|realpath_cache_size = 128k|g;' /etc/php5/fpm/php.ini
   perl -p -i -e 's|;realpath_cache_ttl = 120|realpath_cache_ttl = 600|g;' /etc/php5/fpm/php.ini
   perl -p -i -e 's|disable_functions =|disable_functions = "system,exec,shell_exec,passthru,escapeshellcmd,popen,pcntl_exec"|g;' /etc/php5/fpm/php.ini
+  cp files/apc.ini /etc/php5/fpm/conf.d/apc.ini
   service php5-fpm stop > /dev/null 2>&1
   service php5-fpm start > /dev/null 2>&1
   echo "Done."
