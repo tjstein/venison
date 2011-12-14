@@ -52,7 +52,7 @@ server {
     }
 	
     location @nocache {
-        try_files $uri $uri/ /index.php;
+        try_files $uri $uri/ /index.php?q=$uri&$args;
     }
 
     location = /favicon.ico {
