@@ -27,7 +27,7 @@ install_log()
 
 set_locale()
 {
-  echo -n "Setting up system locale..."
+  echo -n "Setting up system locale... "
   { locale-gen en_US.UTF-8
     unset LANG
     /usr/sbin/update-locale LANG=en_US.UTF-8
@@ -40,7 +40,7 @@ set_hostname()
 {
   if [ -n "$hostname" ]
   then
-    echo -n "Setting up hostname..."
+    echo -n "Setting up hostname... "
     hostname $hostname
     echo $hostname > /etc/hostname
     echo "127.0.0.1 $hostname" >> /etc/hostname
@@ -58,7 +58,7 @@ change_root_passwd()
 {
   if [ -n "$root_passwd" ]
   then
-    echo -n "Changing root password..."
+    echo -n "Changing root password... "
     echo "$root_passwd\n$root_passwd" > tmp/rootpass.$$
     passwd root < tmp/rootpass.$$ > /dev/null 2>&1
     echo "done."
@@ -70,7 +70,7 @@ create_sudo_user()
   if [ -n "$sudo_user" -a -n "$sudo_user_passwd" ]
   then
     id $sudo_user > /dev/null 2>&1 && echo "Cannot create sudo user! User $sudo_user already exists!" && touch tmp/sudofailed.$$ && return
-    echo -n "Creating sudo user..."
+    echo -n "Creating sudo user... "
     useradd -d /home/$sudo_user -s /bin/bash -m $sudo_user
     echo "$sudo_user:$sudo_user_passwd" | chpasswd
     echo "$sudo_user ALL=(ALL) ALL" >> /etc/sudoers
@@ -83,7 +83,7 @@ create_sudo_user()
 config_ssh()
 {
   conf='/etc/ssh/sshd_config'
-  echo -n "Configuring SSH..."
+  echo -n "Configuring SSH... "
   mkdir ~/.ssh && chmod 700 ~/.ssh/
   cp /etc/ssh/sshd_config /etc/ssh/sshd_config.`date "+%Y-%m-%d"`
   sed -i -r 's/\s*X11Forwarding\s+yes/X11Forwarding no/g' $conf
@@ -108,7 +108,7 @@ config_ssh()
 
 setup_firewall()
 {
-  echo -n "Setting up firewall..."
+  echo -n "Setting up firewall... "
   cp tmp/fw.$$ /etc/iptables.up.rules
   iptables -F
   iptables-restore < /etc/iptables.up.rules > /dev/null 2>&1 &&
@@ -120,7 +120,7 @@ setup_firewall()
 
 setup_tmpdir()
 {
-  echo -n "Setting up temporary directory..."
+  echo -n "Setting up temporary directory... "
   echo "APT::ExtractTemplates::TempDir \"/var/local/tmp\";" > /etc/apt/apt.conf.d/50extracttemplates && mkdir /var/local/tmp/
   mkdir ~/tmp && chmod 777 ~/tmp
   mount --bind ~/tmp /tmp
@@ -129,7 +129,7 @@ setup_tmpdir()
 
 install_base()
 {
-  echo -n "Setting up base packages..."
+  echo -n "Setting up base packages... "
   aptitude update >> ~/install.log
   aptitude -y safe-upgrade >> ~/install.log
   aptitude -y full-upgrade >> ~/install.log
@@ -139,7 +139,7 @@ install_base()
 
 install_php()
 {
-  echo "Installing PHP..."
+  echo -n "Installing PHP... "
   mkdir -p /var/www
   aptitude -y install php5-cli php5-common php5-mysql php5-suhosin php5-gd php5-curl >> ~/install.log
   aptitude -y install php5-fpm php5-cgi php-pear php-apc php5-dev libpcre3-dev >> ~/install.log
@@ -177,12 +177,12 @@ install_php()
   cp files/apc.ini /etc/php5/fpm/conf.d/apc.ini
   service php5-fpm stop > /dev/null 2>&1
   service php5-fpm start > /dev/null 2>&1
-  echo "Done."
+  echo "done."
 }
 
 install_mysql()
 {
-  echo "Installing MySQL..."
+  echo -n "Installing MySQL... "
   MYSQL_PASS=`echo $(</dev/urandom tr -dc A-Za-z0-9 | head -c 15)`
   echo "mysql-server mysql-server/root_password select $MYSQL_PASS" | debconf-set-selections
   echo "mysql-server mysql-server/root_password_again select $MYSQL_PASS" | debconf-set-selections
@@ -199,24 +199,24 @@ EOF
   touch /var/log/mysql/mysql-slow.log
   chown mysql:mysql /var/log/mysql/mysql-slow.log
   service mysql restart > /dev/null 2>&1
-  echo "Done."
+  echo "done."
 }
 
 config_db()
 {
-  echo -n "Setting up WordPress database..."
+  echo -n "Setting up WordPress database... "
   WP_DB=`echo $(</dev/urandom tr -dc A-Za-z0-9 | head -c 15)`
   WP_USER=`echo $(</dev/urandom tr -dc A-Za-z0-9 | head -c 15)`
   WP_USER_PASS=`echo $(</dev/urandom tr -dc A-Za-z0-9 | head -c 15)`
   mysql -e "CREATE DATABASE $WP_DB"
   mysql -e "GRANT ALL PRIVILEGES ON $WP_DB.* to $WP_USER@localhost IDENTIFIED BY '$WP_USER_PASS'"
   mysql -e "FLUSH PRIVILEGES"
-  echo -n "Done."
+  echo -n "done."
 }
 
 config_nginx()
 {
-  echo -n "Setting up Nginx..."
+  echo -n "Setting up Nginx... "
   add-apt-repository ppa:nginx/stable > /dev/null 2>&1
   aptitude -y update >> ~/install.log
   aptitude -y install nginx >> ~/install.log
@@ -238,23 +238,23 @@ config_nginx()
   ln -s -v /etc/nginx/sites-available/$hostname.conf /etc/nginx/sites-enabled/001-$hostname.conf > /dev/null 2>&1
   rm -rf /var/www/nginx-default
   service nginx restart > /dev/null 2>&1
-  echo -n "Done."
+  echo "done."
 }
 
 install_postfix()
 {
-  echo -n "Setting up Postfix..."
+  echo -n "Setting up Postfix... "
   echo "postfix postfix/mailname string $hostname" | debconf-set-selections
   echo "postfix postfix/main_mailer_type select Internet Site" | debconf-set-selections
   aptitude -y install postfix >> ~/install.log
   /usr/sbin/postconf -e "inet_interfaces = loopback-only"
   service postfix restart > /dev/null 2>&1
-  echo "Done."
+  echo "done."
 }
 
 configure_wp()
 {
-  echo -n "Setting up WordPress..."
+  echo -n "Setting up WordPress... "
   mkdir -p /home/$sudo_user/$hostname/public/
   wget -q -o ~/install.log -O /home/$sudo_user/$hostname/public/latest.zip http://wordpress.org/latest.zip
   unzip /home/$sudo_user/$hostname/public/latest.zip -d /home/$sudo_user/$hostname/public/ >> ~/install.log
@@ -276,12 +276,12 @@ configure_wp()
   sed -i '1 a\
   define('WP_CACHE', true);' /home/$sudo_user/$hostname/wp-config.php
   chown -R $sudo_user:$sudo_user /home/$sudo_user/$hostname
-  echo "Done."
+  echo "done."
 }
 
 install_monit()
 {
-  echo -n "Setting up Monit..."
+  echo -n "Setting up Monit... "
   aptitude -y install monit >> ~/install.log
   perl -p -i -e 's|startup=0|startup=1|g;' /etc/default/monit
   mv /etc/monit/monitrc /etc/monit/monitrc.bak
@@ -290,7 +290,7 @@ install_monit()
   sed -i -r "s/mydomain.com/$hostname/g" /etc/monit/monitrc
   sed -i -r "s/monitemail/$wpemail/g" /etc/monit/monitrc
   service monit restart > /dev/null 2>&1
-  echo "Done."
+  echo "done."
 }
 
 print_report()
