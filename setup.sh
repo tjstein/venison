@@ -211,7 +211,7 @@ config_db()
   mysql -e "CREATE DATABASE $WP_DB"
   mysql -e "GRANT ALL PRIVILEGES ON $WP_DB.* to $WP_USER@localhost IDENTIFIED BY '$WP_USER_PASS'"
   mysql -e "FLUSH PRIVILEGES"
-  echo -n "done."
+  echo "done."
 }
 
 config_nginx()
@@ -289,6 +289,7 @@ install_monit()
   chmod 700 /etc/monit/monitrc
   sed -i -r "s/mydomain.com/$hostname/g" /etc/monit/monitrc
   sed -i -r "s/monitemail/$wpemail/g" /etc/monit/monitrc
+  sed -i -r "s/sshport/$ssh_port/g" /etc/monit/monitrc
   service monit restart > /dev/null 2>&1
   echo "done."
 }
