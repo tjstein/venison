@@ -1,0 +1,18 @@
+    add_header X-Cache $upstream_cache_status;
+    set $nocache "";                                                                                                                                          
+    if ($http_cookie ~ (comment_author_.*|wordpress_logged_in.*|wp-postpass_.*)) {                                                                            
+            set $nocache "Y";                                                                                                                                 
+    }                                                                                                                                                         
+    if ( $request_method ~ ^(HEAD|POST)$ ) {                                                                                                                  
+            set $nocache "Y";                                                                                                                                 
+    }                                                                                                                                                         
+    fastcgi_no_cache $nocache;                                                                                                                                
+    fastcgi_cache_bypass $nocache;                                                                                                                            
+    fastcgi_cache_use_stale updating;                                                                                            
+    fastcgi_cache_key $scheme$host$request_uri$request_method;                                                                                       
+    fastcgi_cache php_cache;                                                                                                                              
+    fastcgi_cache_valid 200 2m;                                                                                                                               
+    fastcgi_cache_valid 301 1h;                                                                                                                               
+    fastcgi_cache_valid 302 1h;                                                                                                                               
+    fastcgi_cache_valid any 1m;
+    fastcgi_ignore_headers Expires Cache-Control;                                                                                                                          
