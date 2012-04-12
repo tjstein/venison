@@ -130,6 +130,7 @@ syn keyword ngxDirective fastcgi_intercept_errors
 syn keyword ngxDirective fastcgi_max_temp_file_size
 syn keyword ngxDirective fastcgi_next_upstream
 syn keyword ngxDirective fastcgi_param
+syn keyword ngxDirective fastcgi_cache
 syn keyword ngxDirective fastcgi_pass_header
 syn keyword ngxDirective fastcgi_pass_request_body
 syn keyword ngxDirective fastcgi_pass_request_headers
