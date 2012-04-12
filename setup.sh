@@ -275,6 +275,17 @@ configure_wp()
   chmod 400 /home/$sudo_user/$hostname/wp-config.php
   sed -i '1 a\
   define('WP_CACHE', true);' /home/$sudo_user/$hostname/wp-config.php
+  echo "done."
+}
+
+configure_caching()
+  echo -n "Enabling APC object cache... "
+  wget -q -o ~/install.log -O /home/$sudo_user/$hostname/public/wp-content http://plugins.svn.wordpress.org/batcache/trunk/advanced-cache.php
+  wget -q -o ~/install.log -O /home/$sudo_user/$hostname/public/wp-content/plugins http://plugins.svn.wordpress.org/batcache/trunk/batcache.php
+  wget -q -o ~/install.log -O /home/$sudo_user/$hostname/public/wp-content http://plugins.svn.wordpress.org/apc/trunk/object-cache.php
+  chmod +x /home/$sudo_user/$hostname/public/wp-content/advanced-cache.php
+  chmod +x /home/$sudo_user/$hostname/public/wp-content/object-cache.php
+  chmod +x /home/$sudo_user/$hostname/public/wp-content/plugins/batcache.php
   chown -R $sudo_user:$sudo_user /home/$sudo_user/$hostname
   echo "done."
 }
@@ -378,6 +389,9 @@ install_postfix
 
 # configure wordpress
 configure_wp
+
+# configure APC cache
+configure_caching
 
 # install monit
 install_monit
