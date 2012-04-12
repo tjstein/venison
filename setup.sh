@@ -279,6 +279,7 @@ configure_wp()
 }
 
 configure_caching()
+{
   echo -n "Enabling APC object cache... "
   wget -q -o ~/install.log -O /home/$sudo_user/$hostname/public/wp-content http://plugins.svn.wordpress.org/batcache/trunk/advanced-cache.php
   wget -q -o ~/install.log -O /home/$sudo_user/$hostname/public/wp-content/plugins http://plugins.svn.wordpress.org/batcache/trunk/batcache.php
