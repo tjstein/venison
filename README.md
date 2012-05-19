@@ -26,12 +26,12 @@ Usage
 6. Let it run
 
 
-SERVER SETUP COMPLETION
+Notes
 ============================
 DO NOT LOG OUT of your root session. Once the script has completed, the root user can no longer SSH into the server. You need to use the login for the `sudo_user` you setup in the script variables. So, start a new SSH session and try to login using the account of the `sudo_user`. Once you have confirmed you can login successfully, you can close the root session.
 
 
-LICENSE
+License
 ============================
 Copyright (c) 2011 by TJ Stein 
 
