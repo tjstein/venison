@@ -1,16 +1,16 @@
-ABOUT
+About
 ============================
 This script is designed to automate the deployment of WordPress on a fresh (ve) server installation using an Nginx stack.
 
 
-SETUP.SH OVERVIEW
+Overview
 ============================
 This script requires Ubuntu 11.04. It installs and configures the required OS packages and the MySQL/Nginx/PHP-FPM/Postfix deployment stack for WordPress. All packages are installed through aptitude for future upgrade ease.
 
 NOTE: The script disables SSH root login, sets up a sudo user, and optionally changes the SSH port for server security. At the top of the script, you can see the variable that are to be set prior to running the script. All variables should have value, otherwise the script will not run.
 
 
-SERVER SETUP/CONFIGURATION
+Usage
 ============================
 1. Download the script files from the GitHub repo as a tar file. 
 2. Upload the tar file to /root. 
@@ -28,7 +28,7 @@ SERVER SETUP/CONFIGURATION
 
 SERVER SETUP COMPLETION
 ============================
-DO NOT LOG OUT of your root session. Once the script has completed, the root user can no longer SSH into the server. You need to use the login for the sudo_user you setup in the script variables. So, start a new SSH session and try to login using the account of the sudo_user. Once you have confirmed you can login successfully, you can close the root session.
+DO NOT LOG OUT of your root session. Once the script has completed, the root user can no longer SSH into the server. You need to use the login for the `sudo_user` you setup in the script variables. So, start a new SSH session and try to login using the account of the `sudo_user`. Once you have confirmed you can login successfully, you can close the root session.
 
 
 LICENSE
