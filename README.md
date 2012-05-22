@@ -7,7 +7,7 @@ Overview
 ============================
 This script requires Ubuntu 11.04. It installs and configures the required OS packages and the MySQL/Nginx/PHP-FPM/Postfix deployment stack for WordPress. All packages are installed through aptitude for future upgrade ease.
 
-NOTE: The script disables SSH root login, sets up a sudo user, and optionally changes the SSH port for server security. At the top of the script, you can see the variable that are to be set prior to running the script. All variables should have value, otherwise the script will not run.
+NOTE: The script disables SSH root login, sets up a sudo user, and optionally changes the SSH port for server security. At the top of the script, you can see the variables that should be set prior to running the script. All variables should have value, otherwise the script will not run.
 
 
 Usage
