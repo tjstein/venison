@@ -130,10 +130,10 @@ setup_tmpdir()
 install_base()
 {
   echo -n "Setting up base packages... "
-  aptitude update >> ~/install.log
-  aptitude -y safe-upgrade >> ~/install.log
-  aptitude -y full-upgrade >> ~/install.log
-  aptitude -y install curl build-essential python-software-properties git-core htop >> ~/install.log
+  aptitude update > ~/install.log
+  aptitude -y safe-upgrade > ~/install.log
+  aptitude -y full-upgrade > ~/install.log
+  aptitude -y install curl build-essential python-software-properties git-core htop > ~/install.log
   echo "done."
 }
 
@@ -141,8 +141,8 @@ install_php()
 {
   echo -n "Installing PHP... "
   mkdir -p /var/www
-  aptitude -y install php5-cli php5-common php5-mysql php5-suhosin php5-gd php5-curl >> ~/install.log
-  aptitude -y install php5-fpm php5-cgi php-pear php-apc php5-dev libpcre3-dev >> ~/install.log
+  aptitude -y install php5-cli php5-common php5-mysql php5-suhosin php5-gd php5-curl > ~/install.log
+  aptitude -y install php5-fpm php5-cgi php-pear php-apc php5-dev libpcre3-dev > ~/install.log
   perl -p -i -e 's|# Default-Stop:|# Default-Stop:      0 1 6|g;' /etc/init.d/php5-fpm
   cp /etc/php5/fpm/pool.d/www.conf /etc/php5/fpm/pool.d/www.conf.`date "+%Y-%m-%d"`
   chmod 000 /etc/php5/fpm/pool.d/www.conf.`date "+%Y-%m-%d"` && mv /etc/php5/fpm/pool.d/www.conf.`date "+%Y-%m-%d"` /tmp
@@ -186,7 +186,7 @@ install_mysql()
   MYSQL_PASS=`echo $(</dev/urandom tr -dc A-Za-z0-9 | head -c 15)`
   echo "mysql-server mysql-server/root_password select $MYSQL_PASS" | debconf-set-selections
   echo "mysql-server mysql-server/root_password_again select $MYSQL_PASS" | debconf-set-selections
-  aptitude -y install mysql-server >> ~/install.log
+  aptitude -y install mysql-server > ~/install.log
   cat <<EOF > /root/.my.cnf
 [client]
 user=root
@@ -218,8 +218,8 @@ config_nginx()
 {
   echo -n "Setting up Nginx... "
   add-apt-repository ppa:nginx/stable > /dev/null 2>&1
-  aptitude -y update >> ~/install.log
-  aptitude -y install nginx >> ~/install.log
+  aptitude -y update > ~/install.log
+  aptitude -y install nginx > ~/install.log
   cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.`date "+%Y-%m-%d"`
   rm -rf /etc/nginx/nginx.conf
   cp files/nginx.conf /etc/nginx/nginx.conf
@@ -266,7 +266,7 @@ configure_wp()
   perl -p -i -e "s|database_name_here|$WP_DB|;" /home/$sudo_user/$hostname/public/wp-config-sample.php
   perl -p -i -e "s|username_here|$WP_USER|;" /home/$sudo_user/$hostname/public/wp-config-sample.php
   perl -p -i -e "s|password_here|$WP_USER_PASS|;" /home/$sudo_user/$hostname/public/wp-config-sample.php
-  perl -p -i -e "s|\$table_prefix  = 'wp_';|\$table_prefix  = '$DB_PREFIX';|;" /home/$sudo_user/$hostname/public/wp-config-sample.php
+  perl -p -i -e "s|\$table_prefix  = 'wp_';|\$table_prefix  = 'wp_$DB_PREFIX';|;" /home/$sudo_user/$hostname/public/wp-config-sample.php
   mv /home/$sudo_user/$hostname/public/wp-config-sample.php /home/$sudo_user/$hostname/public/wp-config.php
   wget -O /tmp/wp.keys https://api.wordpress.org/secret-key/1.1/salt/ > /dev/null 2>&1
   sed -i '/#@-/r /tmp/wp.keys' /home/$sudo_user/$hostname/public/wp-config.php
@@ -286,7 +286,7 @@ configure_wp()
 install_monit()
 {
   echo -n "Setting up Monit... "
-  aptitude -y install monit >> ~/install.log
+  aptitude -y install monit > ~/install.log
   perl -p -i -e 's|startup=0|startup=1|g;' /etc/default/monit
   mv /etc/monit/monitrc /etc/monit/monitrc.bak
   cp files/monitrc /etc/monit/monitrc
