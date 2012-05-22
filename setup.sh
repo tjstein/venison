@@ -266,7 +266,7 @@ configure_wp()
   perl -p -i -e "s|database_name_here|$WP_DB|;" /home/$sudo_user/$hostname/public/wp-config-sample.php
   perl -p -i -e "s|username_here|$WP_USER|;" /home/$sudo_user/$hostname/public/wp-config-sample.php
   perl -p -i -e "s|password_here|$WP_USER_PASS|;" /home/$sudo_user/$hostname/public/wp-config-sample.php
-  perl -p -i -e "s|_wp|$DB_PREFIX|;" /home/$sudo_user/$hostname/public/wp-config-sample.php
+  perl -p -i -e "s|\$table_prefix  = 'wp_';|$DB_PREFIX|;" /home/$sudo_user/$hostname/public/wp-config-sample.php
   mv /home/$sudo_user/$hostname/public/wp-config-sample.php /home/$sudo_user/$hostname/public/wp-config.php
   wget -O /tmp/wp.keys https://api.wordpress.org/secret-key/1.1/salt/ > /dev/null 2>&1
   sed -i '/#@-/r /tmp/wp.keys' /home/$sudo_user/$hostname/public/wp-config.php
@@ -275,6 +275,7 @@ configure_wp()
   rm -rf /tmp/wp.keys
   curl -d "weblog_title=$wptitle&user_name=$wpuser&admin_password=$wppass&admin_password2=$wppass&admin_email=$wpemail" http://$hostname/wp-admin/install.php?step=2 >/dev/null 2>&1
   mv /home/$sudo_user/$hostname/public/wp-config.php /home/$sudo_user/$hostname/wp-config.php
+  sed -i 's/'"$(printf '\015')"'$//g' /home/$sudo_user/$hostname/wp-config.php
   chmod 400 /home/$sudo_user/$hostname/wp-config.php
   sed -i '1 a\
   define('WP_CACHE', true);' /home/$sudo_user/$hostname/wp-config.php
