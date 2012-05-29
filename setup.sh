@@ -184,9 +184,14 @@ install_mysql()
 {
   echo -n "Installing MySQL... "
   MYSQL_PASS=`echo $(</dev/urandom tr -dc A-Za-z0-9 | head -c 15)`
-  echo "mysql-server mysql-server/root_password select $MYSQL_PASS" | debconf-set-selections
-  echo "mysql-server mysql-server/root_password_again select $MYSQL_PASS" | debconf-set-selections
-  aptitude -y install mysql-server > ~/install.log
+  gpg --keyserver  hkp://keys.gnupg.net --recv-keys 1C4CBDCDCD2EFD2A
+  gpg -a --export CD2EFD2A | sudo apt-key add -
+  echo "deb http://repo.percona.com/apt natty main" >> /etc/apt/sources.list
+  echo "deb-src http://repo.percona.com/apt natty main" >> /etc/apt/sources.list
+  apt-get update > /dev/null 2>&1
+  echo "percona-server percona-server/root_password select $MYSQL_PASS" | debconf-set-selections
+  echo "percona-server percona-server/root_password_again select $MYSQL_PASS" | debconf-set-selections
+  aptitude -y install percona-server-server-5.5 percona-server-client-5.5 > ~/install.log
   cat <<EOF > /root/.my.cnf
 [client]
 user=root
