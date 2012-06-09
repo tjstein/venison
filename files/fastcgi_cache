@@ -1,34 +1,32 @@
+fastcgi_connect_timeout        60;
+fastcgi_send_timeout          180;
+fastcgi_read_timeout          180;
+fastcgi_buffer_size          128k;
+fastcgi_buffers           256 16k;
+fastcgi_busy_buffers_size    256k;
+fastcgi_temp_file_write_size 256k;
+fastcgi_max_temp_file_size      0;
+
+add_header X-Cache-Status $upstream_cache_status;
+add_header X-Upstream-Time $upstream_response_time;
+set $nocache "";
+
+if ($http_cookie ~ (comment_author_.*|wordpress_logged_in.*|wp-postpass_.*)) {
+        set $nocache "Y";                                                                                                                                 
+}
+if ( $request_method ~ ^(HEAD|POST)$ ) {
+        set $nocache "Y";
+}
+
+fastcgi_no_cache $nocache;
+fastcgi_cache_bypass $nocache;
+fastcgi_cache_use_stale updating;
+fastcgi_cache_min_uses 3;
+fastcgi_cache_key $scheme$host$request_uri$request_method;
 fastcgi_cache php_cache;
-fastcgi_cache_key $scheme$host$request_method$request_uri;
 fastcgi_cache_valid 200 2m;
 fastcgi_cache_valid 301 1h;
 fastcgi_cache_valid 302 1h;
 fastcgi_cache_valid any 1m;
-fastcgi_cache_use_stale updating;
-fastcgi_max_temp_file_size 1M;
-fastcgi_cache_min_uses 3;
-
-set $no_cache_set  0;
-set $no_cache_get  0;
-
-set $temp_caching_exemption 0;
-if ($request_method !~ ^(GET|HEAD)$) {
-    set $temp_caching_exemption 1;
-}
-
-if ( $temp_caching_exemption = 1 ) {
-    add_header Set-Cookie "_mcnc=1; Max-Age=10; Path=/";
-}
-
-if ( $http_cookie ~* "_mcnc" ) {
-    set $no_cache_set 1;
-    set $no_cache_get 1;
-}
-
-if ( $http_cookie ~* "comment_author_|wordpress_(?!test_cookie)|wp-postpass_" ) {
-    set $no_cache_set 1;
-    set $no_cache_get 1;
-}
-
-fastcgi_no_cache $no_cache_set;
-fastcgi_cache_bypass $no_cache_get;
+fastcgi_ignore_headers Expires Cache-Control Set-Cookie;
+fastcgi_pass_header X-Accel-Expires;
