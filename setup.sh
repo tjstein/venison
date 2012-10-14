@@ -217,9 +217,9 @@ config_db()
 config_nginx()
 {
   echo -n "Setting up Nginx... "
-  add-apt-repository ppa:nginx/stable > /dev/null 2>&1
-  aptitude -y update > ~/install.log
-  aptitude -y install nginx > ~/install.log
+  echo -ne '\n' | add-apt-repository ppa:brianmercer/nginx > /dev/null 2>&1
+  aptitude -y update > /dev/null 2>&1
+  aptitude -y install nginx-custom > /dev/null 2>&1
   cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.`date "+%Y-%m-%d"`
   rm -rf /etc/nginx/nginx.conf
   cp files/nginx.conf /etc/nginx/nginx.conf
