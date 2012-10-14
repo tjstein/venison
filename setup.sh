@@ -130,10 +130,10 @@ setup_tmpdir()
 install_base()
 {
   echo -n "Setting up base packages... "
-  aptitude update > ~/install.log
-  aptitude -y safe-upgrade > ~/install.log
-  aptitude -y full-upgrade > ~/install.log
-  aptitude -y install curl build-essential python-software-properties git-core htop > ~/install.log
+  aptitude update > /dev/null 2>&1
+  aptitude -y safe-upgrade > /dev/null 2>&1
+  aptitude -y full-upgrade > /dev/null 2>&1
+  aptitude -y install curl build-essential python-software-properties git-core htop > /dev/null 2>&1
   echo "done."
 }
 
