@@ -47,7 +47,6 @@ server {
         fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
         fastcgi_intercept_errors on;
         fastcgi_ignore_client_abort on;
-        fastcgi_keep_conn on;
         fastcgi_pass php-fpm;
     }
 
