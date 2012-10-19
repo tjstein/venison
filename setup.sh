@@ -141,8 +141,8 @@ install_php()
 {
   echo -n "Installing PHP... "
   mkdir -p /var/www
-  aptitude -y install php5-cli php5-common php5-mysql php5-suhosin php5-gd php5-curl > ~/install.log
-  aptitude -y install php5-fpm php5-cgi php-pear php-apc php5-dev libpcre3-dev > ~/install.log
+  aptitude -y install php5-cli php5-common php5-mysql php5-suhosin php5-gd php5-curl > /dev/null 2>&1
+  aptitude -y install php5-fpm php5-cgi php-pear php-apc php5-dev libpcre3-dev > /dev/null 2>&1
   perl -p -i -e 's|# Default-Stop:|# Default-Stop:      0 1 6|g;' /etc/init.d/php5-fpm
   cp /etc/php5/fpm/pool.d/www.conf /etc/php5/fpm/pool.d/www.conf.`date "+%Y-%m-%d"`
   chmod 000 /etc/php5/fpm/pool.d/www.conf.`date "+%Y-%m-%d"` && mv /etc/php5/fpm/pool.d/www.conf.`date "+%Y-%m-%d"` /tmp
@@ -186,7 +186,7 @@ install_mysql()
   MYSQL_PASS=`echo $(</dev/urandom tr -dc A-Za-z0-9 | head -c 15)`
   echo "mysql-server mysql-server/root_password select $MYSQL_PASS" | debconf-set-selections
   echo "mysql-server mysql-server/root_password_again select $MYSQL_PASS" | debconf-set-selections
-  aptitude -y install mysql-server > ~/install.log
+  aptitude -y install mysql-server > /dev/null 2>&1
   cat <<EOF > /root/.my.cnf
 [client]
 user=root
@@ -247,7 +247,7 @@ install_postfix()
   echo -n "Setting up Postfix... "
   echo "postfix postfix/mailname string $hostname" | debconf-set-selections
   echo "postfix postfix/main_mailer_type select Internet Site" | debconf-set-selections
-  aptitude -y install postfix >> ~/install.log
+  aptitude -y install postfix > /dev/null 2>&1
   /usr/sbin/postconf -e "inet_interfaces = loopback-only"
   service postfix restart > /dev/null 2>&1
   echo "done."
@@ -286,7 +286,7 @@ define('WP_CACHE', true);' /home/$sudo_user/$hostname/wp-config.php
 install_monit()
 {
   echo -n "Setting up Monit... "
-  aptitude -y install monit > ~/install.log
+  aptitude -y install monit > /dev/null 2>&1
   perl -p -i -e 's|startup=0|startup=1|g;' /etc/default/monit
   mv /etc/monit/monitrc /etc/monit/monitrc.bak
   cp files/monitrc /etc/monit/monitrc
