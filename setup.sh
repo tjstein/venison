@@ -20,11 +20,6 @@ os_check()
   fi
 }
 
-install_log()
-{
-  touch ~/install.log
-}
-
 set_locale()
 {
   echo -n "Setting up system locale... "
@@ -328,9 +323,6 @@ cleanup()
 
 # make sure we are running Ubuntu 11.04
 os_check
-
-# create ~/install.log
-install_log
 
 # clean up tmp
 cleanup
