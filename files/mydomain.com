@@ -14,7 +14,6 @@ server {
     error_log /var/log/nginx/mydomain.com-error.log;
 
     location / {
-        gzip_static on;
         try_files $uri $uri/ /index.php?q=$uri&$args;
     }
 
