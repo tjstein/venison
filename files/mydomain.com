@@ -13,6 +13,8 @@ server {
     access_log /var/log/nginx/mydomain.com-access.log;
     error_log /var/log/nginx/mydomain.com-error.log;
 
+    include /etc/nginx/fastcgi_rules;
+
     location / {
         try_files $uri $uri/ /index.php?q=$uri&$args;
     }
@@ -28,14 +30,16 @@ server {
         access_log off;
     }
 
-    location ~ /\.git/* {
-        deny all;
-    }
+	location ~ /\. { deny all; access_log off; log_not_found off; }
 
     location /nginx_status {
         stub_status on;
         access_log off;
     }
+
+    location ~ /purge(/.*) {
+        fastcgi_cache_purge php_cache "$scheme$request_method$host$1";
+	}
 
     location ~ \.php$ {
         try_files $uri =404;

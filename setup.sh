@@ -228,6 +228,7 @@ config_nginx()
   rm -rf /etc/nginx/fastcgi_params
   cp files/fastcgi_params /etc/nginx/fastcgi_params
   cp files/fastcgi_cache /etc/nginx/fastcgi_cache
+  cp files/fastcgi_rules /etc/nginx/fastcgi_rules
   sed -i -r "s/sudoer/$sudo_user/g" /etc/nginx/nginx.conf
   sed -i -r "s/mydomain.com/$hostname/g" /etc/nginx/sites-available/$hostname.conf
   sed -i -r "s/sudoer/$sudo_user/g" /etc/nginx/sites-available/$hostname.conf
