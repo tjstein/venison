@@ -212,6 +212,9 @@ config_db()
 config_nginx()
 {
   echo -n "Setting up Nginx... "
+  echo "tmpfs /var/run/nginx-cache tmpfs  nodev,nosuid 0 0" >> /etc/fstab
+  mkdir -p /var/run/nginx-cache
+  mount -a > /dev/null 2>&1
   echo -ne '\n' | add-apt-repository ppa:brianmercer/nginx > /dev/null 2>&1
   aptitude -y update > /dev/null 2>&1
   aptitude -y install nginx-custom > /dev/null 2>&1

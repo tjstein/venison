@@ -16,7 +16,7 @@ server {
     include /etc/nginx/fastcgi_rules;
 
     location / {
-        try_files $uri $uri/ /index.php?q=$uri&$args;
+        try_files $uri $uri/ /index.php?$args;
     }
 
     location = /favicon.ico {
@@ -39,7 +39,7 @@ server {
 
     location ~ /purge(/.*) {
         fastcgi_cache_purge php_cache "$scheme$request_method$host$1";
-	}
+    }
 
     location ~ \.php$ {
         try_files $uri =404;
