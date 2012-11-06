@@ -41,10 +41,6 @@ server {
         access_log off;
     }
 
-    location ~ /purge(/.*) {
-        fastcgi_cache_purge php_cache "$scheme$request_method$host$1";
-    }
-
     location ~ \.php$ {
         try_files $uri =404;
         include fastcgi_cache;		
