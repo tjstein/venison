@@ -18,5 +18,6 @@ fastcgi_cache_valid 302 1h;
 fastcgi_cache_valid any 1m;
 fastcgi_ignore_headers Expires Cache-Control Set-Cookie;
 fastcgi_pass_header X-Accel-Expires;
+fastcgi_hide_header "X-Pingback";
 add_header X-Cache-Status $upstream_cache_status;
 add_header X-Upstream-Time $upstream_response_time;
