@@ -14,7 +14,7 @@ wpemail=''              #Your WordPress admin user email address
 
 os_check()
 {
-  if [ "$(cat /etc/lsb-release | grep natty)" != "DISTRIB_CODENAME=natty" ]; then
+  if [ "$(lsb_release -cs)" != "natty" ]; then
   echo "You need to be running Ubuntu 11.04"
     exit
   fi
